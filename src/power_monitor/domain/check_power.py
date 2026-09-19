@@ -31,10 +31,17 @@ class CheckPower:
         if previous is None:
             self._notifier.notify(FirstRunEvent(current, now))
             if current is PinState.LOW:
-                self._notifier.notify(PowerEvent(PowerEventKind.OFF, now))
-                self._state_repo.save(State(PinState.LOW, now))
-                self._system.shutdown()
+                self._handle_low(now)
             else:
                 self._state_repo.save(State(PinState.HIGH, now))
             return
+
+        if current is PinState.LOW:
+            self._handle_low(now)
+            return
+
+    def _handle_low(self, now: Timestamp) -> None:
+        self._notifier.notify(PowerEvent(PowerEventKind.OFF, now))
+        self._state_repo.save(State(PinState.LOW, now))
+        self._system.shutdown()
 
