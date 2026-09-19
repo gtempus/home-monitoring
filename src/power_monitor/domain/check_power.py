@@ -44,7 +44,10 @@ class CheckPower:
             except NotificationFailed:
                 return
         elif previous.timestamp.value.month != now.value.month:
-            self._notifier.notify(HeartbeatEvent(now))
+            try:
+                self._notifier.notify(HeartbeatEvent(now))
+            except NotificationFailed:
+                return
 
         self._state_repo.save(State(PinState.HIGH, now))
 
