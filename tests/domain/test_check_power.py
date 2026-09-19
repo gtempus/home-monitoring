@@ -1,0 +1,63 @@
+from datetime import datetime, timezone
+
+from power_monitor.domain.check_power import CheckPower
+from power_monitor.domain.events import FirstRunEvent
+from power_monitor.domain.model import PinState, State, Timestamp
+
+
+class FakeClock:
+    def __init__(self, now: datetime) -> None:
+        self._now = now
+
+    def now(self) -> datetime:
+        return self._now
+
+
+class FakePin:
+    def __init__(self, state: PinState) -> None:
+        self._state = state
+
+    def read(self) -> PinState:
+        return self._state
+
+
+class InMemoryStateRepository:
+    def __init__(self) -> None:
+        self._state: State | None = None
+
+    def load(self) -> State | None:
+        return self._state
+
+    def save(self, state: State) -> None:
+        self._state = state
+
+
+class SpyNotifier:
+    def __init__(self) -> None:
+        self.events: list = []
+
+    def notify(self, event) -> None:
+        self.events.append(event)
+
+
+class SpySystem:
+    def __init__(self) -> None:
+        self.shutdown_called = False
+
+    def shutdown(self) -> None:
+        self.shutdown_called = True
+
+
+# --- The test ---
+
+def test_first_run_with_high_pin_sends_first_run_event() -> None:
+    now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+    clock = FakeClock(now)
+    pin = FakePin(PinState.HIGH)
+    repo = InMemoryStateRepository()
+    notifier = SpyNotifier()
+    system = SpySystem()
+
+    CheckPower(clock, pin, repo, notifier, system).run()
+
+    assert notifier.events == [FirstRunEvent(PinState.HIGH, Timestamp(now))]
