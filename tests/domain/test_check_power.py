@@ -1,7 +1,13 @@
 from datetime import UTC, datetime
 
 from power_monitor.domain.check_power import CheckPower
-from power_monitor.domain.events import Event, FirstRunEvent, PowerEvent, PowerEventKind
+from power_monitor.domain.events import (
+    Event,
+    FirstRunEvent,
+    HeartbeatEvent,
+    PowerEvent,
+    PowerEventKind,
+)
 from power_monitor.domain.model import PinState, State, Timestamp
 
 
@@ -137,4 +143,20 @@ def test_second_run_with_high_pin_same_month_sends_no_event() -> None:
 
     assert notifier.events == []
     assert system.shutdown_called is False
+    assert repo.load() == State(PinState.HIGH, Timestamp(now))
+
+def test_second_run_with_high_pin_new_month_sends_heartbeat() -> None:
+    now = datetime(2025, 2, 1, 12, 0, 0, tzinfo=UTC)
+    earlier = datetime(2025, 1, 15, 11, 55, 0, tzinfo=UTC)  # previous month
+
+    clock = FakeClock(now)
+    pin = FakePin(PinState.HIGH)
+    repo = InMemoryStateRepository()
+    repo.save(State(PinState.HIGH, Timestamp(earlier)))
+    notifier = SpyNotifier()
+    system = SpySystem()
+
+    CheckPower(clock, pin, repo, notifier, system).run()
+
+    assert notifier.events == [HeartbeatEvent(Timestamp(now))]
     assert repo.load() == State(PinState.HIGH, Timestamp(now))

@@ -20,4 +20,10 @@ class PowerEvent:
     kind: PowerEventKind
     at: Timestamp
 
-Event = FirstRunEvent | PowerEvent
+
+@dataclass(frozen=True)
+class HeartbeatEvent:
+    at: Timestamp
+
+
+Event = FirstRunEvent | PowerEvent | HeartbeatEvent

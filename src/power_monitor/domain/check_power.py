@@ -1,13 +1,10 @@
+from power_monitor.domain.events import FirstRunEvent, HeartbeatEvent, PowerEvent, PowerEventKind
+from power_monitor.domain.model import PinState, State, Timestamp
 from power_monitor.domain.ports.clock import Clock
 from power_monitor.domain.ports.notifier import Notifier
-from power_monitor.domain.ports.system_command import SystemCommand
-
-from power_monitor.domain.events import FirstRunEvent, PowerEvent, PowerEventKind
-from power_monitor.domain.model import PinState, State, Timestamp
-
 from power_monitor.domain.ports.pin_reader import PinReader
-
 from power_monitor.domain.ports.state_repository import StateRepository
+from power_monitor.domain.ports.system_command import SystemCommand
 
 
 class CheckPower:
@@ -42,6 +39,9 @@ class CheckPower:
 
         if previous.pin_state is PinState.LOW:
             self._notifier.notify(PowerEvent(PowerEventKind.ON, now))
+        elif previous.timestamp.value.month != now.value.month:
+            self._notifier.notify(HeartbeatEvent(now))
+
         self._state_repo.save(State(PinState.HIGH, now))
 
     def _handle_low(self, now: Timestamp) -> None:
