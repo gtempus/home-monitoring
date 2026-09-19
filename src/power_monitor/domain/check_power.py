@@ -1,5 +1,5 @@
-from power_monitor.domain.events import FirstRunEvent
-from power_monitor.domain.model import State, Timestamp
+from power_monitor.domain.events import FirstRunEvent, PowerEvent, PowerEventKind
+from power_monitor.domain.model import State, Timestamp, PinState
 
 
 class CheckPower:
@@ -17,4 +17,11 @@ class CheckPower:
 
         if previous is None:
             self._notifier.notify(FirstRunEvent(current, now))
-            self._state_repo.save(State(current, now))
+            if current is PinState.LOW:
+                self._notifier.notify(PowerEvent(PowerEventKind.OFF, now))
+                self._state_repo.save(State(PinState.LOW, now))
+                self._system.shutdown()
+            else:
+                self._state_repo.save(State(PinState.HIGH, now))
+            return
+

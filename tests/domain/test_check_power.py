@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from power_monitor.domain.check_power import CheckPower
-from power_monitor.domain.events import FirstRunEvent
+from power_monitor.domain.events import FirstRunEvent, PowerEvent, PowerEventKind
 from power_monitor.domain.model import PinState, State, Timestamp
 
 
@@ -61,3 +61,31 @@ def test_first_run_with_high_pin_sends_first_run_event() -> None:
     CheckPower(clock, pin, repo, notifier, system).run()
 
     assert notifier.events == [FirstRunEvent(PinState.HIGH, Timestamp(now))]
+
+def test_first_run_with_low_pin_sends_first_run_then_power_off_and_shuts_down() -> None:
+    now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+    clock = FakeClock(now)
+    pin = FakePin(PinState.LOW)
+    repo = InMemoryStateRepository()
+    notifier = SpyNotifier()
+    system = SpySystem()
+
+    CheckPower(clock, pin, repo, notifier, system).run()
+
+    assert notifier.events == [
+        FirstRunEvent(PinState.LOW, Timestamp(now)),
+        PowerEvent(PowerEventKind.OFF, Timestamp(now)),
+    ]
+    assert system.shutdown_called is True
+
+def test_first_run_persists_state() -> None:
+    now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+    clock = FakeClock(now)
+    pin = FakePin(PinState.HIGH)
+    repo = InMemoryStateRepository()
+    notifier = SpyNotifier()
+    system = SpySystem()
+
+    CheckPower(clock, pin, repo, notifier, system).run()
+
+    assert repo.load() == State(PinState.HIGH, Timestamp(now))
