@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 
 from power_monitor.domain.check_power import CheckPower
+from power_monitor.domain.errors import NotificationFailed
 from power_monitor.domain.events import (
     Event,
     FirstRunEvent,
@@ -39,11 +40,14 @@ class InMemoryStateRepository:
 
 
 class SpyNotifier:
-    def __init__(self) -> None:
+    def __init__(self, fail: bool = False) -> None:
         self.events: list[Event] = []
+        self._fail = fail
 
     def notify(self, event: Event) -> None:
         self.events.append(event)
+        if self._fail:
+            raise NotificationFailed()
 
 
 class SpySystem:
@@ -160,3 +164,20 @@ def test_second_run_with_high_pin_new_month_sends_heartbeat() -> None:
 
     assert notifier.events == [HeartbeatEvent(Timestamp(now))]
     assert repo.load() == State(PinState.HIGH, Timestamp(now))
+
+def test_low_path_notification_failure_does_not_advance_state_or_shutdown() -> None:
+    now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
+    earlier = datetime(2025, 1, 15, 11, 55, 0, tzinfo=UTC)
+
+    clock = FakeClock(now)
+    pin = FakePin(PinState.LOW)
+    repo = InMemoryStateRepository()
+    repo.save(State(PinState.LOW, Timestamp(earlier)))
+    notifier = SpyNotifier(fail=True)
+    system = SpySystem()
+
+    CheckPower(clock, pin, repo, notifier, system).run()
+
+    assert notifier.events == [PowerEvent(PowerEventKind.OFF, Timestamp(now))]
+    assert system.shutdown_called is False
+    assert repo.load() == State(PinState.LOW, Timestamp(earlier))  # unchanged

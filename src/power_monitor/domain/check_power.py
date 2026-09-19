@@ -1,3 +1,4 @@
+from power_monitor.domain.errors import NotificationFailed
 from power_monitor.domain.events import FirstRunEvent, HeartbeatEvent, PowerEvent, PowerEventKind
 from power_monitor.domain.model import PinState, State, Timestamp
 from power_monitor.domain.ports.clock import Clock
@@ -45,7 +46,10 @@ class CheckPower:
         self._state_repo.save(State(PinState.HIGH, now))
 
     def _handle_low(self, now: Timestamp) -> None:
-        self._notifier.notify(PowerEvent(PowerEventKind.OFF, now))
+        try:
+            self._notifier.notify(PowerEvent(PowerEventKind.OFF, now))
+        except NotificationFailed:
+                return
         self._state_repo.save(State(PinState.LOW, now))
         self._system.shutdown()
 
