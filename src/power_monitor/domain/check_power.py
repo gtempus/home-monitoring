@@ -39,7 +39,10 @@ class CheckPower:
             return
 
         if previous.pin_state is PinState.LOW:
-            self._notifier.notify(PowerEvent(PowerEventKind.ON, now))
+            try:
+                self._notifier.notify(PowerEvent(PowerEventKind.ON, now))
+            except NotificationFailed:
+                return
         elif previous.timestamp.value.month != now.value.month:
             self._notifier.notify(HeartbeatEvent(now))
 
