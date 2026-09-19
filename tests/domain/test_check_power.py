@@ -105,3 +105,19 @@ def test_second_run_with_low_pin_sends_power_off_and_shuts_down() -> None:
 
     assert notifier.events == [PowerEvent(PowerEventKind.OFF, Timestamp(now))]
     assert system.shutdown_called is True
+
+def test_second_run_with_high_pin_after_low_sends_power_on() -> None:
+    now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
+    earlier = datetime(2025, 1, 15, 11, 55, 0, tzinfo=UTC)
+
+    clock = FakeClock(now)
+    pin = FakePin(PinState.HIGH)
+    repo = InMemoryStateRepository()
+    repo.save(State(PinState.LOW, Timestamp(earlier)))  # previous run saw LOW
+    notifier = SpyNotifier()
+    system = SpySystem()
+
+    CheckPower(clock, pin, repo, notifier, system).run()
+
+    assert notifier.events == [PowerEvent(PowerEventKind.ON, Timestamp(now))]
+    assert system.shutdown_called is False

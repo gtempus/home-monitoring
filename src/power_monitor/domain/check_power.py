@@ -40,6 +40,10 @@ class CheckPower:
             self._handle_low(now)
             return
 
+        if previous.pin_state is PinState.LOW:
+            self._notifier.notify(PowerEvent(PowerEventKind.ON, now))
+        self._state_repo.save(State(PinState.HIGH, now))
+
     def _handle_low(self, now: Timestamp) -> None:
         self._notifier.notify(PowerEvent(PowerEventKind.OFF, now))
         self._state_repo.save(State(PinState.LOW, now))
