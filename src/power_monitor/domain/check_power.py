@@ -1,5 +1,11 @@
 from power_monitor.domain.errors import NotificationFailed
-from power_monitor.domain.events import FirstRunEvent, HeartbeatEvent, PowerEvent, PowerEventKind
+from power_monitor.domain.events import (
+    Event,
+    FirstRunEvent,
+    HeartbeatEvent,
+    PowerEvent,
+    PowerEventKind,
+)
 from power_monitor.domain.model import PinState, State, Timestamp
 from power_monitor.domain.ports.clock import Clock
 from power_monitor.domain.ports.notifier import Notifier
@@ -38,14 +44,10 @@ class CheckPower:
             self._handle_low(now)
             return
 
-        if previous.pin_state is PinState.LOW:
+        event = self._high_event(previous, now)
+        if event is not None:
             try:
-                self._notifier.notify(PowerEvent(PowerEventKind.ON, now))
-            except NotificationFailed:
-                return
-        elif previous.timestamp.value.month != now.value.month:
-            try:
-                self._notifier.notify(HeartbeatEvent(now))
+                self._notifier.notify(event)
             except NotificationFailed:
                 return
 
@@ -58,4 +60,11 @@ class CheckPower:
                 return
         self._state_repo.save(State(PinState.LOW, now))
         self._system.shutdown()
+
+    def _high_event(self, previous: State, now: Timestamp) -> Event | None:
+        if previous.pin_state is PinState.LOW:
+            return PowerEvent(PowerEventKind.ON, now)
+        if previous.timestamp.value.month != now.value.month:
+            return HeartbeatEvent(now)
+        return None
 
