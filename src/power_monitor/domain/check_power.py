@@ -1,9 +1,22 @@
+from power_monitor.domain.ports.clock import Clock
+from power_monitor.domain.ports.notifier import Notifier
+from power_monitor.domain.ports.system_command import SystemCommand
+
 from power_monitor.domain.events import FirstRunEvent, PowerEvent, PowerEventKind
-from power_monitor.domain.model import State, Timestamp, PinState
+from power_monitor.domain.model import PinState, State, Timestamp
+
+from power_monitor.domain.ports.pin_reader import PinReader
+
+from power_monitor.domain.ports.state_repository import StateRepository
 
 
 class CheckPower:
-    def __init__(self, clock, pin, state_repo, notifier, system) -> None:
+    def __init__(self,
+                 clock: Clock,
+                 pin: PinReader,
+                 state_repo: StateRepository,
+                 notifier:Notifier,
+                 system: SystemCommand) -> None:
         self._clock = clock
         self._pin = pin
         self._state_repo = state_repo

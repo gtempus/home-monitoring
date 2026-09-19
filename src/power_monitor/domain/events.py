@@ -19,3 +19,5 @@ class PowerEventKind(Enum):
 class PowerEvent:
     kind: PowerEventKind
     at: Timestamp
+
+Event = FirstRunEvent | PowerEvent

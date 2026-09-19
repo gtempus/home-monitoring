@@ -36,4 +36,7 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 [tool.mypy]
 python_version = "3.13"
 strict = true
-files = ["src", "tests"]
+files = ["src/power_monitor", "tests"]
+
+explicit_package_bases = true
+mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
