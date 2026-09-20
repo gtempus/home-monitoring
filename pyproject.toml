@@ -5,7 +5,7 @@ description = "Raspberry Pi power monitor: watches a GPIO pin and reports state.
 requires-python = ">=3.13"
 dependencies = []
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=8",
     "pytest-cov>=6",
@@ -37,6 +37,14 @@ select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
 python_version = "3.13"
 strict = true
 files = ["src/power_monitor", "tests"]
-
 explicit_package_bases = true
 mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
+
+[[tool.mypy.overrides]]
+module = ["gpiod", "gpiod.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+markers = [
+    "hardware: requires real hardware (GPIO, system, etc.)",
+]
