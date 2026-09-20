@@ -1,4 +1,4 @@
-from datetime import UTC
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -7,6 +7,7 @@ from power_monitor.adapters.state.state_repository_json import (
     JsonStateRepository,
     StateRepositoryError,
 )
+from power_monitor.domain.model import PinState, State, Timestamp
 
 
 def test_load_returns_none_when_file_missing(tmp_path: Path) -> None:
@@ -86,3 +87,30 @@ def test_load_tolerates_extra_keys(tmp_path: Path) -> None:
         '"future_field": 42}'
     )
     assert JsonStateRepository(path).load() is not None
+
+def test_save_failure_leaves_existing_state_unchanged(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "state.json"
+    repo = JsonStateRepository(path)
+    original = State(
+        pin_state=PinState.HIGH,
+        timestamp=Timestamp(datetime(2025, 1, 15, 12, 0, tzinfo=UTC)),
+    )
+    repo.save(original)
+    original_bytes = path.read_bytes()
+
+    def boom(*args: object, **kwargs: object) -> None:
+        raise OSError("simulated crash during rename")
+
+    monkeypatch.setattr("os.replace", boom)
+
+    with pytest.raises(OSError):
+        repo.save(
+            State(
+                pin_state=PinState.LOW,
+                timestamp=Timestamp(datetime(2025, 1, 16, 12, 0, tzinfo=UTC)),
+            )
+        )
+
+    assert path.read_bytes() == original_bytes

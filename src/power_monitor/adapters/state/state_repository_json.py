@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -28,7 +29,12 @@ class JsonStateRepository(StateRepository):
             "pin_state": state.pin_state.name,
             "timestamp": state.timestamp.value.isoformat(),
         }
-        self._path.write_text(json.dumps(payload))
+        tmp = self._path.with_suffix(self._path.suffix + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(payload))
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, self._path)
 
     def _deserialize(self, raw: object) -> State:
         if not isinstance(raw, dict):
