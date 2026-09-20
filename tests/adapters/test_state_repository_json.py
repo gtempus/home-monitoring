@@ -142,3 +142,16 @@ def test_failed_save_leaves_no_temp_file(
         )
 
     assert not tmp_file.exists()
+
+def test_save_creates_parent_directory(tmp_path: Path) -> None:
+    path = tmp_path / "nested" / "deeper" / "state.json"
+    repo = JsonStateRepository(path)
+    state = State(
+        pin_state=PinState.HIGH,
+        timestamp=Timestamp(datetime(2025, 1, 15, 12, 0, tzinfo=UTC)),
+    )
+
+    repo.save(state)
+
+    assert path.exists()
+    assert repo.load() == state

@@ -30,6 +30,7 @@ class JsonStateRepository(StateRepository):
             "pin_state": state.pin_state.name,
             "timestamp": state.timestamp.value.isoformat(),
         }
+        self._path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self._path.with_suffix(self._path.suffix + ".tmp")
         try:
             with open(tmp, "w", encoding="utf-8") as fh:
