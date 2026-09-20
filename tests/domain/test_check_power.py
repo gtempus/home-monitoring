@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
 
+from power_monitor.adapters.state.state_repository_memory import InMemoryStateRepository
 from power_monitor.domain.check_power import CheckPower
 from power_monitor.domain.errors import NotificationFailed
 from power_monitor.domain.events import (
@@ -13,7 +14,6 @@ from power_monitor.domain.model import PinState, State, Timestamp
 from power_monitor.domain.ports.clock import Clock
 from power_monitor.domain.ports.notifier import Notifier
 from power_monitor.domain.ports.pin_reader import PinReader
-from power_monitor.domain.ports.state_repository import StateRepository
 from power_monitor.domain.ports.system_command import SystemCommand
 
 
@@ -31,17 +31,6 @@ class FakePin(PinReader):
 
     def read(self) -> PinState:
         return self._state
-
-
-class InMemoryStateRepository(StateRepository):
-    def __init__(self) -> None:
-        self._state: State | None = None
-
-    def load(self) -> State | None:
-        return self._state
-
-    def save(self, state: State) -> None:
-        self._state = state
 
 
 class SpyNotifier(Notifier):
