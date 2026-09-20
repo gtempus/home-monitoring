@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 from datetime import datetime
@@ -30,11 +31,15 @@ class JsonStateRepository(StateRepository):
             "timestamp": state.timestamp.value.isoformat(),
         }
         tmp = self._path.with_suffix(self._path.suffix + ".tmp")
-        with open(tmp, "w", encoding="utf-8") as fh:
-            fh.write(json.dumps(payload))
-            fh.flush()
-            os.fsync(fh.fileno())
-        os.replace(tmp, self._path)
+        try:
+            with open(tmp, "w", encoding="utf-8") as fh:
+                fh.write(json.dumps(payload))
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(tmp, self._path)
+        finally:
+            with contextlib.suppress(OSError):
+                tmp.unlink(missing_ok=True)
 
     def _deserialize(self, raw: object) -> State:
         if not isinstance(raw, dict):

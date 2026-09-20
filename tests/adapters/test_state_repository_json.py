@@ -114,3 +114,31 @@ def test_save_failure_leaves_existing_state_unchanged(
         )
 
     assert path.read_bytes() == original_bytes
+
+def test_failed_save_leaves_no_temp_file(
+        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "state.json"
+    repo = JsonStateRepository(path)
+    repo.save(
+        State(
+            pin_state=PinState.HIGH,
+            timestamp=Timestamp(datetime(2025, 1, 15, 12, 0, tzinfo=UTC)),
+        )
+    )
+    tmp_file = path.with_suffix(path.suffix + ".tmp")
+
+    def boom(*args: object, **kwargs: object) -> None:
+        raise OSError("simulated crash during rename")
+
+    monkeypatch.setattr("os.replace", boom)
+
+    with pytest.raises(OSError):
+        repo.save(
+            State(
+                pin_state=PinState.LOW,
+                timestamp=Timestamp(datetime(2025, 1, 16, 12, 0, tzinfo=UTC)),
+            )
+        )
+
+    assert not tmp_file.exists()
