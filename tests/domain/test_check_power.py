@@ -244,3 +244,37 @@ def test_transition_takes_precedence_over_heartbeat() -> None:
     CheckPower(clock, pin, repo, notifier, system).run()
 
     assert notifier.events == [PowerEvent(PowerEventKind.ON, Timestamp(now))]
+
+def test_repeated_failures_retry_until_delivered() -> None:
+    t1 = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
+    t2 = datetime(2025, 1, 15, 12, 5, 0, tzinfo=UTC)
+    t3 = datetime(2025, 1, 15, 12, 10, 0, tzinfo=UTC)
+    earlier = datetime(2025, 1, 15, 11, 55, 0, tzinfo=UTC)
+
+    pin = FakePin(PinState.LOW)
+    repo = InMemoryStateRepository()
+    repo.save(State(PinState.LOW, Timestamp(earlier)))
+
+    # Run 1 — delivery fails
+    notifier1 = SpyNotifier(fail=True)
+    system1 = SpySystem()
+    CheckPower(FakeClock(t1), pin, repo, notifier1, system1).run()
+    assert notifier1.events == [PowerEvent(PowerEventKind.OFF, Timestamp(t1))]
+    assert system1.shutdown_called is False
+    assert repo.load() == State(PinState.LOW, Timestamp(earlier))
+
+    # Run 2 — delivery fails again
+    notifier2 = SpyNotifier(fail=True)
+    system2 = SpySystem()
+    CheckPower(FakeClock(t2), pin, repo, notifier2, system2).run()
+    assert notifier2.events == [PowerEvent(PowerEventKind.OFF, Timestamp(t2))]
+    assert system2.shutdown_called is False
+    assert repo.load() == State(PinState.LOW, Timestamp(earlier))
+
+    # Run 3 — delivery succeeds
+    notifier3 = SpyNotifier()
+    system3 = SpySystem()
+    CheckPower(FakeClock(t3), pin, repo, notifier3, system3).run()
+    assert notifier3.events == [PowerEvent(PowerEventKind.OFF, Timestamp(t3))]
+    assert system3.shutdown_called is True
+    assert repo.load() == State(PinState.LOW, Timestamp(t3))
