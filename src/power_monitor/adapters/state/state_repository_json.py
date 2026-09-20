@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-from power_monitor.domain.model import PinState, State, Timestamp
+from power_monitor.domain.model import PowerState, State, Timestamp
 from power_monitor.domain.ports.state_repository import StateRepository
 
 
@@ -27,7 +27,7 @@ class JsonStateRepository(StateRepository):
 
     def save(self, state: State) -> None:
         payload = {
-            "pin_state": state.pin_state.name,
+            "power_state": state.power_state.name,
             "timestamp": state.timestamp.value.isoformat(),
         }
         self._path.parent.mkdir(parents=True, exist_ok=True)
@@ -46,18 +46,18 @@ class JsonStateRepository(StateRepository):
         if not isinstance(raw, dict):
             raise StateRepositoryError(f"state file is not a JSON object: {self._path}")
 
-        if "pin_state" not in raw:
-            raise StateRepositoryError(f"state file missing 'pin_state': {self._path}")
-        pin_name = raw["pin_state"]
-        if not isinstance(pin_name, str):
+        if "power_state" not in raw:
+            raise StateRepositoryError(f"state file missing 'power_state': {self._path}")
+        power_name = raw["power_state"]
+        if not isinstance(power_name, str):
             raise StateRepositoryError(
-                f"state file has non-string 'pin_state' ({pin_name!r}): {self._path}"
+                f"state file has non-string 'power_state' ({power_name!r}): {self._path}"
             )
         try:
-            pin_state = PinState[pin_name]
+            power_state = PowerState[power_name]
         except KeyError as exc:
             raise StateRepositoryError(
-                f"state file has unknown 'pin_state' ({pin_name!r}): {self._path}"
+                f"state file has unknown 'power_state' ({power_name!r}): {self._path}"
             ) from exc
 
         if "timestamp" not in raw:
@@ -74,4 +74,4 @@ class JsonStateRepository(StateRepository):
                 f"state file has invalid 'timestamp' ({raw_ts!r}): {self._path}"
             ) from exc
 
-        return State(pin_state=pin_state, timestamp=timestamp)
+        return State(power_state=power_state, timestamp=timestamp)

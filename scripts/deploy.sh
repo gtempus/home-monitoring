@@ -38,7 +38,8 @@ show_state "before deploy"
 
 echo
 echo "==> Pausing timer"
-ssh "${PI_HOST}" "sudo systemctl stop power-monitor.timer power-monitor.service"
+ssh "${PI_HOST}" "sudo systemctl stop power-monitor.timer"
+ssh "${PI_HOST}" "sudo systemctl stop power-monitor.service"
 
 show_state "paused"
 

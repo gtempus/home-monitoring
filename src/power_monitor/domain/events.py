@@ -1,23 +1,17 @@
 from dataclasses import dataclass
-from enum import Enum, auto
 
-from power_monitor.domain.model import PinState, Timestamp
+from power_monitor.domain.model import PowerState, Timestamp
 
 
 @dataclass(frozen=True)
 class FirstRunEvent:
-    pin_state: PinState
+    power_state: PowerState
     at: Timestamp
-
-
-class PowerEventKind(Enum):
-    ON = auto()
-    OFF = auto()
 
 
 @dataclass(frozen=True)
 class PowerEvent:
-    kind: PowerEventKind
+    state: PowerState
     at: Timestamp
 
 

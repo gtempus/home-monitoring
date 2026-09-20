@@ -3,9 +3,9 @@ from datetime import datetime
 from enum import Enum, auto
 
 
-class PinState(Enum):
-    LOW = auto()
-    HIGH = auto()
+class PowerState(Enum):
+    ON = auto()
+    OFF = auto()
 
 
 @dataclass(frozen=True)
@@ -15,5 +15,5 @@ class Timestamp:
 
 @dataclass(frozen=True)
 class State:
-    pin_state: PinState
+    power_state: PowerState
     timestamp: Timestamp
