@@ -14,7 +14,7 @@ from power_monitor.adapters.system.log_only_system_command import (
 from power_monitor.domain.check_power import CheckPower
 
 CHIP_PATH = "/dev/gpiochip0"
-PIN_OFFSET = 17
+PIN_OFFSET = 23
 STATE_PATH = Path("/var/lib/power-monitor/state.json")
 CONSUMER = "power-monitor"
 
