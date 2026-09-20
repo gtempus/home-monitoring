@@ -33,7 +33,10 @@ class CheckPower:
         current = self._pin.read()
 
         if previous is None:
-            self._notifier.notify(FirstRunEvent(current, now))
+            try:
+                self._notifier.notify(FirstRunEvent(current, now))
+            except NotificationFailed:
+                return
             if current is PinState.LOW:
                 self._handle_low(now)
             else:
@@ -67,4 +70,3 @@ class CheckPower:
         if previous.timestamp.value.month != now.value.month:
             return HeartbeatEvent(now)
         return None
-

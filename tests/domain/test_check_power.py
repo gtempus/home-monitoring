@@ -215,3 +215,17 @@ def test_heartbeat_notification_failure_does_not_advance_state() -> None:
     assert notifier.events == [HeartbeatEvent(Timestamp(now))]
     assert system.shutdown_called is False
     assert repo.load() == State(PinState.HIGH, Timestamp(earlier))  # unchanged
+
+def test_first_run_notification_failure_saves_no_state() -> None:
+    now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
+
+    clock = FakeClock(now)
+    pin = FakePin(PinState.HIGH)
+    repo = InMemoryStateRepository()
+    notifier = SpyNotifier(fail=True)
+    system = SpySystem()
+
+    CheckPower(clock, pin, repo, notifier, system).run()
+
+    assert notifier.events == [FirstRunEvent(PinState.HIGH, Timestamp(now))]
+    assert repo.load() is None  # nothing saved
