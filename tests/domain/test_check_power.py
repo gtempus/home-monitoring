@@ -10,9 +10,14 @@ from power_monitor.domain.events import (
     PowerEventKind,
 )
 from power_monitor.domain.model import PinState, State, Timestamp
+from power_monitor.domain.ports.clock import Clock
+from power_monitor.domain.ports.notifier import Notifier
+from power_monitor.domain.ports.pin_reader import PinReader
+from power_monitor.domain.ports.state_repository import StateRepository
+from power_monitor.domain.ports.system_command import SystemCommand
 
 
-class FakeClock:
+class FakeClock(Clock):
     def __init__(self, now: datetime) -> None:
         self._now = now
 
@@ -20,7 +25,7 @@ class FakeClock:
         return self._now
 
 
-class FakePin:
+class FakePin(PinReader):
     def __init__(self, state: PinState) -> None:
         self._state = state
 
@@ -28,7 +33,7 @@ class FakePin:
         return self._state
 
 
-class InMemoryStateRepository:
+class InMemoryStateRepository(StateRepository):
     def __init__(self) -> None:
         self._state: State | None = None
 
@@ -39,7 +44,7 @@ class InMemoryStateRepository:
         self._state = state
 
 
-class SpyNotifier:
+class SpyNotifier(Notifier):
     def __init__(self, fail: bool = False) -> None:
         self.events: list[Event] = []
         self._fail = fail
@@ -50,7 +55,7 @@ class SpyNotifier:
             raise NotificationFailed()
 
 
-class SpySystem:
+class SpySystem(SystemCommand):
     def __init__(self) -> None:
         self.shutdown_called = False
 
