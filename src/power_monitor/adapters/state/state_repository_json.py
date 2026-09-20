@@ -44,14 +44,10 @@ class JsonStateRepository(StateRepository):
 
     def _deserialize(self, raw: object) -> State:
         if not isinstance(raw, dict):
-            raise StateRepositoryError(
-                f"state file is not a JSON object: {self._path}"
-            )
+            raise StateRepositoryError(f"state file is not a JSON object: {self._path}")
 
         if "pin_state" not in raw:
-            raise StateRepositoryError(
-                f"state file missing 'pin_state': {self._path}"
-            )
+            raise StateRepositoryError(f"state file missing 'pin_state': {self._path}")
         pin_name = raw["pin_state"]
         if not isinstance(pin_name, str):
             raise StateRepositoryError(
@@ -65,9 +61,7 @@ class JsonStateRepository(StateRepository):
             ) from exc
 
         if "timestamp" not in raw:
-            raise StateRepositoryError(
-                f"state file missing 'timestamp': {self._path}"
-            )
+            raise StateRepositoryError(f"state file missing 'timestamp': {self._path}")
         raw_ts = raw["timestamp"]
         if not isinstance(raw_ts, str):
             raise StateRepositoryError(

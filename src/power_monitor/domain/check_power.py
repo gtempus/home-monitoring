@@ -15,12 +15,14 @@ from power_monitor.domain.ports.system_command import SystemCommand
 
 
 class CheckPower:
-    def __init__(self,
-                 clock: Clock,
-                 pin: PinReader,
-                 state_repo: StateRepository,
-                 notifier:Notifier,
-                 system: SystemCommand) -> None:
+    def __init__(
+        self,
+        clock: Clock,
+        pin: PinReader,
+        state_repo: StateRepository,
+        notifier: Notifier,
+        system: SystemCommand,
+    ) -> None:
         self._clock = clock
         self._pin = pin
         self._state_repo = state_repo
@@ -60,7 +62,7 @@ class CheckPower:
         try:
             self._notifier.notify(PowerEvent(PowerEventKind.OFF, now))
         except NotificationFailed:
-                return
+            return
         self._state_repo.save(State(PinState.LOW, now))
         self._system.shutdown()
 

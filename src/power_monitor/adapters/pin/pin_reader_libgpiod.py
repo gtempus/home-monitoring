@@ -14,10 +14,10 @@ class LineRequestLike(Protocol):
 
 class LibGpiodPinReader(PinReader):
     def __init__(
-            self,
-            request: LineRequestLike,
-            offset: int,
-            active: object,
+        self,
+        request: LineRequestLike,
+        offset: int,
+        active: object,
     ) -> None:
         self._request = request
         self._offset = offset
@@ -27,7 +27,5 @@ class LibGpiodPinReader(PinReader):
         try:
             value = self._request.get_value(self._offset)
         except OSError as exc:
-            raise PinReaderError(
-                f"failed to read GPIO line {self._offset}"
-            ) from exc
+            raise PinReaderError(f"failed to read GPIO line {self._offset}") from exc
         return PinState.HIGH if value == self._active else PinState.LOW

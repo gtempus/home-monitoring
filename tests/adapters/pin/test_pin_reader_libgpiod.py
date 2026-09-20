@@ -22,16 +22,12 @@ class FakeLineRequest:
 
 
 def test_read_returns_high_when_value_is_active() -> None:
-    reader = LibGpiodPinReader(
-        FakeLineRequest(value=ACTIVE), offset=17, active=ACTIVE
-    )
+    reader = LibGpiodPinReader(FakeLineRequest(value=ACTIVE), offset=17, active=ACTIVE)
     assert reader.read() is PinState.HIGH
 
 
 def test_read_returns_low_when_value_is_inactive() -> None:
-    reader = LibGpiodPinReader(
-        FakeLineRequest(value=INACTIVE), offset=17, active=ACTIVE
-    )
+    reader = LibGpiodPinReader(FakeLineRequest(value=INACTIVE), offset=17, active=ACTIVE)
     assert reader.read() is PinState.LOW
 
 

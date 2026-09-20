@@ -54,6 +54,7 @@ class SpySystem(SystemCommand):
 
 # --- The test ---
 
+
 def test_first_run_with_high_pin_sends_first_run_event() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
     clock = FakeClock(now)
@@ -65,6 +66,7 @@ def test_first_run_with_high_pin_sends_first_run_event() -> None:
     CheckPower(clock, pin, repo, notifier, system).run()
 
     assert notifier.events == [FirstRunEvent(PinState.HIGH, Timestamp(now))]
+
 
 def test_first_run_with_low_pin_sends_first_run_then_power_off_and_shuts_down() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
@@ -82,6 +84,7 @@ def test_first_run_with_low_pin_sends_first_run_then_power_off_and_shuts_down() 
     ]
     assert system.shutdown_called is True
 
+
 def test_first_run_persists_state() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
     clock = FakeClock(now)
@@ -93,6 +96,7 @@ def test_first_run_persists_state() -> None:
     CheckPower(clock, pin, repo, notifier, system).run()
 
     assert repo.load() == State(PinState.HIGH, Timestamp(now))
+
 
 def test_second_run_with_low_pin_sends_power_off_and_shuts_down() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
@@ -110,6 +114,7 @@ def test_second_run_with_low_pin_sends_power_off_and_shuts_down() -> None:
     assert notifier.events == [PowerEvent(PowerEventKind.OFF, Timestamp(now))]
     assert system.shutdown_called is True
 
+
 def test_second_run_with_high_pin_after_low_sends_power_on() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
     earlier = datetime(2025, 1, 15, 11, 55, 0, tzinfo=UTC)
@@ -125,6 +130,7 @@ def test_second_run_with_high_pin_after_low_sends_power_on() -> None:
 
     assert notifier.events == [PowerEvent(PowerEventKind.ON, Timestamp(now))]
     assert system.shutdown_called is False
+
 
 def test_second_run_with_high_pin_same_month_sends_no_event() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
@@ -143,6 +149,7 @@ def test_second_run_with_high_pin_same_month_sends_no_event() -> None:
     assert system.shutdown_called is False
     assert repo.load() == State(PinState.HIGH, Timestamp(now))
 
+
 def test_second_run_with_high_pin_new_month_sends_heartbeat() -> None:
     now = datetime(2025, 2, 1, 12, 0, 0, tzinfo=UTC)
     earlier = datetime(2025, 1, 15, 11, 55, 0, tzinfo=UTC)  # previous month
@@ -158,6 +165,7 @@ def test_second_run_with_high_pin_new_month_sends_heartbeat() -> None:
 
     assert notifier.events == [HeartbeatEvent(Timestamp(now))]
     assert repo.load() == State(PinState.HIGH, Timestamp(now))
+
 
 def test_low_path_notification_failure_does_not_advance_state_or_shutdown() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
@@ -176,6 +184,7 @@ def test_low_path_notification_failure_does_not_advance_state_or_shutdown() -> N
     assert system.shutdown_called is False
     assert repo.load() == State(PinState.LOW, Timestamp(earlier))  # unchanged
 
+
 def test_high_transition_notification_failure_does_not_advance_state() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
     earlier = datetime(2025, 1, 15, 11, 55, 0, tzinfo=UTC)
@@ -192,6 +201,7 @@ def test_high_transition_notification_failure_does_not_advance_state() -> None:
     assert notifier.events == [PowerEvent(PowerEventKind.ON, Timestamp(now))]
     assert system.shutdown_called is False
     assert repo.load() == State(PinState.LOW, Timestamp(earlier))  # unchanged
+
 
 def test_heartbeat_notification_failure_does_not_advance_state() -> None:
     now = datetime(2025, 2, 1, 12, 0, 0, tzinfo=UTC)
@@ -210,6 +220,7 @@ def test_heartbeat_notification_failure_does_not_advance_state() -> None:
     assert system.shutdown_called is False
     assert repo.load() == State(PinState.HIGH, Timestamp(earlier))  # unchanged
 
+
 def test_first_run_notification_failure_saves_no_state() -> None:
     now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)
 
@@ -223,6 +234,7 @@ def test_first_run_notification_failure_saves_no_state() -> None:
 
     assert notifier.events == [FirstRunEvent(PinState.HIGH, Timestamp(now))]
     assert repo.load() is None  # nothing saved
+
 
 def test_transition_takes_precedence_over_heartbeat() -> None:
     now = datetime(2025, 2, 1, 12, 0, 0, tzinfo=UTC)
@@ -238,6 +250,7 @@ def test_transition_takes_precedence_over_heartbeat() -> None:
     CheckPower(clock, pin, repo, notifier, system).run()
 
     assert notifier.events == [PowerEvent(PowerEventKind.ON, Timestamp(now))]
+
 
 def test_repeated_failures_retry_until_delivered() -> None:
     t1 = datetime(2025, 1, 15, 12, 0, 0, tzinfo=UTC)

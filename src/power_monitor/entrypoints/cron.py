@@ -25,13 +25,9 @@ def main() -> None:
     system = LogOnlySystemCommand()  # TEMP: replace with real adapter
 
     with gpiod.request_lines(
-            CHIP_PATH,
-            consumer=CONSUMER,
-            config={
-                PIN_OFFSET: LineSettings(
-                    direction=Direction.INPUT, bias=Bias.DISABLED
-                )
-            },
+        CHIP_PATH,
+        consumer=CONSUMER,
+        config={PIN_OFFSET: LineSettings(direction=Direction.INPUT, bias=Bias.DISABLED)},
     ) as request:
         pin = LibGpiodPinReader(request, offset=PIN_OFFSET, active=Value.ACTIVE)
         CheckPower(SystemClock(), pin, repo, notifier, system).run()

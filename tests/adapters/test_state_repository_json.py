@@ -19,6 +19,7 @@ def test_load_raises_on_corrupted_file(tmp_path: Path) -> None:
     with pytest.raises(StateRepositoryError):
         repo.load()
 
+
 def test_load_raises_on_non_object_json(tmp_path: Path) -> None:
     path = tmp_path / "state.json"
     path.write_text("[]")
@@ -32,11 +33,13 @@ def test_load_raises_on_missing_timestamp(tmp_path: Path) -> None:
     with pytest.raises(StateRepositoryError, match=r"missing 'timestamp'"):
         JsonStateRepository(path).load()
 
+
 def test_load_raises_on_missing_pin_state(tmp_path: Path) -> None:
     path = tmp_path / "state.json"
     path.write_text('{"timestamp": "2025-01-15T12:00:00+00:00"}')
     with pytest.raises(StateRepositoryError, match=r"missing 'pin_state'"):
         JsonStateRepository(path).load()
+
 
 def test_load_raises_on_unknown_pin_state(tmp_path: Path) -> None:
     path = tmp_path / "state.json"
@@ -44,11 +47,13 @@ def test_load_raises_on_unknown_pin_state(tmp_path: Path) -> None:
     with pytest.raises(StateRepositoryError, match=r"'WOBBLY'"):
         JsonStateRepository(path).load()
 
+
 def test_load_raises_on_unparseable_timestamp(tmp_path: Path) -> None:
     path = tmp_path / "state.json"
     path.write_text('{"pin_state": "HIGH", "timestamp": "not-a-date"}')
     with pytest.raises(StateRepositoryError, match=r"'not-a-date'"):
         JsonStateRepository(path).load()
+
 
 def test_load_raises_on_non_string_pin_state(tmp_path: Path) -> None:
     path = tmp_path / "state.json"
@@ -56,23 +61,24 @@ def test_load_raises_on_non_string_pin_state(tmp_path: Path) -> None:
     with pytest.raises(StateRepositoryError, match=r"'pin_state'"):
         JsonStateRepository(path).load()
 
+
 def test_load_raises_on_non_string_timestamp(tmp_path: Path) -> None:
     path = tmp_path / "state.json"
     path.write_text('{"pin_state": "HIGH", "timestamp": 42}')
     with pytest.raises(StateRepositoryError, match=r"'timestamp'"):
         JsonStateRepository(path).load()
 
+
 def test_load_tolerates_extra_keys(tmp_path: Path) -> None:
     path = tmp_path / "state.json"
     path.write_text(
-        '{"pin_state": "HIGH", '
-        '"timestamp": "2025-01-15T12:00:00+00:00", '
-        '"future_field": 42}'
+        '{"pin_state": "HIGH", "timestamp": "2025-01-15T12:00:00+00:00", "future_field": 42}'
     )
     assert JsonStateRepository(path).load() is not None
 
+
 def test_save_failure_leaves_existing_state_unchanged(
-        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     path = tmp_path / "state.json"
     repo = JsonStateRepository(path)
@@ -98,9 +104,8 @@ def test_save_failure_leaves_existing_state_unchanged(
 
     assert path.read_bytes() == original_bytes
 
-def test_failed_save_leaves_no_temp_file(
-        tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+
+def test_failed_save_leaves_no_temp_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     path = tmp_path / "state.json"
     repo = JsonStateRepository(path)
     repo.save(
@@ -125,6 +130,7 @@ def test_failed_save_leaves_no_temp_file(
         )
 
     assert not tmp_file.exists()
+
 
 def test_save_creates_parent_directory(tmp_path: Path) -> None:
     path = tmp_path / "nested" / "deeper" / "state.json"

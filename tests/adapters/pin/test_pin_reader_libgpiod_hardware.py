@@ -18,11 +18,9 @@ OFFSET = 17
 
 def test_reads_real_line_without_applying_bias() -> None:
     with gpiod.request_lines(
-            CHIP,
-            consumer="power-monitor-test",
-            config={
-                OFFSET: LineSettings(direction=Direction.INPUT, bias=Bias.DISABLED)
-            },
+        CHIP,
+        consumer="power-monitor-test",
+        config={OFFSET: LineSettings(direction=Direction.INPUT, bias=Bias.DISABLED)},
     ) as request:
         reader = LibGpiodPinReader(request, offset=OFFSET, active=Value.ACTIVE)
         result = reader.read()
