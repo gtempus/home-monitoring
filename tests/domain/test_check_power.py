@@ -229,3 +229,18 @@ def test_first_run_notification_failure_saves_no_state() -> None:
 
     assert notifier.events == [FirstRunEvent(PinState.HIGH, Timestamp(now))]
     assert repo.load() is None  # nothing saved
+
+def test_transition_takes_precedence_over_heartbeat() -> None:
+    now = datetime(2025, 2, 1, 12, 0, 0, tzinfo=UTC)
+    earlier = datetime(2025, 1, 15, 11, 55, 0, tzinfo=UTC)
+
+    clock = FakeClock(now)
+    pin = FakePin(PinState.HIGH)
+    repo = InMemoryStateRepository()
+    repo.save(State(PinState.LOW, Timestamp(earlier)))
+    notifier = SpyNotifier()
+    system = SpySystem()
+
+    CheckPower(clock, pin, repo, notifier, system).run()
+
+    assert notifier.events == [PowerEvent(PowerEventKind.ON, Timestamp(now))]
