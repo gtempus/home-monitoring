@@ -9,4 +9,4 @@ WorkingDirectory=/home/gtempus/power-monitor
 ExecStart=/home/gtempus/power-monitor/scripts/run.sh
 StandardOutput=journal
 StandardError=journal
-TimeoutStartSec=60
+TimeoutStartSec=180

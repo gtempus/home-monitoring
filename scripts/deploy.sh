@@ -63,7 +63,7 @@ rsync -avz --delete \
     "${LOCAL_DIR}/" "${PI_HOST}:${PI_DIR}/"
 
 echo "==> Syncing dependencies on the Pi"
-ssh "${PI_HOST}" "cd ${PI_DIR} && \$HOME/.local/bin/uv sync --frozen"
+ssh "${PI_HOST}" "cd ${PI_DIR} && \$HOME/.local/bin/uv sync --frozen --extra pi"
 
 echo "==> Cleaning uv cache"
 ssh "${PI_HOST}" "\$HOME/.local/bin/uv cache clean"

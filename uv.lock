@@ -164,6 +164,15 @@ wheels = [
 ]
 
 [[package]]
+name = "filelock"
+version = "4.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/6f/38/88cd6eda96c40594a1e3da7d8b40f04bc40ace5a6aef9ac5cb407540f173/filelock-4.0.1.tar.gz", hash = "sha256:fdefc3f3e87716d855ae2b732c1cfd521dd99799ef2b4d00e8c0d4dcdc7cc94b", size = 238888, upload-time = "2026-09-19T01:08:15.958Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/29/33/af0635ab07fe83b1788a1dbe370ff3e226062495a998335cb18a1cac81aa/filelock-4.0.1-py3-none-any.whl", hash = "sha256:481a321a27bef441e23c53371c6abc8d7d16e26b97090074ba44f7538a3fd55a", size = 106219, upload-time = "2026-09-19T01:08:14.49Z" },
+]
+
+[[package]]
 name = "iniconfig"
 version = "2.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -316,6 +325,18 @@ wheels = [
 ]
 
 [[package]]
+name = "note-python"
+version = "2.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "filelock" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/af/ba/13de56d440c2ad04626679dd72ba1549d103afa8475132e4727cf0f72ac8/note_python-2.5.1.tar.gz", hash = "sha256:4d9b56ca44c186016cbeb1ad90fe9735d837607524df4b8e4ff6ea8f5f30e2fc", size = 308183, upload-time = "2026-09-18T10:00:31.385Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/93/9c/b104cef30b259de983db98dddae3702ca714d89f8992dc105d3531375118/note_python-2.5.1-py3-none-any.whl", hash = "sha256:43ad77ac32aeda9233b38e2cb0755ed3f8a32b211a2b64f87b505b830eccc3c3", size = 52280, upload-time = "2026-09-18T10:00:29.426Z" },
+]
+
+[[package]]
 name = "packaging"
 version = "26.3"
 source = { registry = "https://pypi.org/simple" }
@@ -347,6 +368,12 @@ name = "power-monitor"
 version = "0.1.0"
 source = { editable = "." }
 
+[package.optional-dependencies]
+pi = [
+    { name = "note-python" },
+    { name = "pyserial" },
+]
+
 [package.dev-dependencies]
 dev = [
     { name = "mypy" },
@@ -356,6 +383,11 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [
+    { name = "note-python", marker = "extra == 'pi'", specifier = ">=2.0" },
+    { name = "pyserial", marker = "extra == 'pi'", specifier = ">=3.5" },
+]
+provides-extras = ["pi"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -372,6 +404,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/49/2e/ced460408999b33da6b31b0021b0f37d329e202d4169aeb164493778f25b/pygments-2.21.0.tar.gz", hash = "sha256:610ca751c9bc2492b38eb9a38a7fbc93edbbb2d7182edaf34e66ae493dee5c8c", size = 5005329, upload-time = "2026-08-17T08:02:48.824Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/71/46/17f022dd3e953bf20a04a028a21ec746d942f8d2af30fa0f124fa0e6a684/pygments-2.21.0-py3-none-any.whl", hash = "sha256:2363c69b61c4a97c838da3b130dcd6468f4848992b21a82f2a63ec34377137d9", size = 1250147, upload-time = "2026-08-17T08:02:44.912Z" },
+]
+
+[[package]]
+name = "pyserial"
+version = "3.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1e/7d/ae3f0a63f41e4d2f6cb66a5b57197850f919f59e558159a4dd3a818f5082/pyserial-3.5.tar.gz", hash = "sha256:3c77e014170dfffbd816e6ffc205e9842efb10be9f58ec16d3e8675b4925cddb", size = 159125, upload-time = "2020-11-23T03:59:15.045Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/07/bc/587a445451b253b285629263eb51c2d8e9bcea4fc97826266d186f96f558/pyserial-3.5-py2.py3-none-any.whl", hash = "sha256:c4451db6ba391ca6ca299fb3ec7bae67a5c55dde170964c7a14ceefec02f2cf0", size = 90585, upload-time = "2020-11-23T03:59:13.41Z" },
 ]
 
 [[package]]
