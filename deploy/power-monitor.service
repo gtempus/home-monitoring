@@ -1,0 +1,12 @@
+[Unit]
+Description=Power Monitor check
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=gtempus
+WorkingDirectory=/home/gtempus/power-monitor
+ExecStart=/home/gtempus/power-monitor/scripts/run.sh
+StandardOutput=journal
+StandardError=journal
+TimeoutStartSec=60
