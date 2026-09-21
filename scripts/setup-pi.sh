@@ -43,6 +43,37 @@ else
     uv venv --system-site-packages
 fi
 
+# --- I2C for Notecard ---
+I2C_CHANGED=0
+CONFIG="/boot/firmware/config.txt"
+
+echo "==> Configuring I2C for Notecard"
+if dpkg -l i2c-tools 2>/dev/null | grep -q "^ii"; then
+    echo "    i2c-tools already installed"
+else
+    sudo apt install -y i2c-tools
+    echo "    installed i2c-tools"
+fi
+
+if getent group i2c | grep -q "\b$USER\b"; then
+    echo "    $USER already in i2c group"
+else
+    sudo usermod -aG i2c "$USER"
+    echo "    added $USER to i2c group"
+fi
+
+if grep -q "^dtparam=i2c_arm=on,i2c_arm_baudrate=100000" "$CONFIG"; then
+    echo "    I2C already configured with baudrate"
+elif grep -q "^dtparam=i2c_arm=on" "$CONFIG"; then
+    sudo sed -i 's|^dtparam=i2c_arm=on.*|dtparam=i2c_arm=on,i2c_arm_baudrate=100000|' "$CONFIG"
+    echo "    updated i2c_arm line to include baudrate"
+    I2C_CHANGED=1
+else
+    echo "dtparam=i2c_arm=on,i2c_arm_baudrate=100000" | sudo tee -a "$CONFIG" > /dev/null
+    echo "    added i2c_arm to $CONFIG"
+    I2C_CHANGED=1
+fi
+
 # --- UART for Notecard serial ---
 UART_CHANGED=0
 CONFIG="/boot/firmware/config.txt"
@@ -81,6 +112,9 @@ echo "==> Setup complete."
 
 if [ "$UART_CHANGED" -eq 1 ]; then
     REBOOT_REASONS+=("UART configuration changed")
+fi
+if [ "$I2C_CHANGED" -eq 1 ]; then
+    REBOOT_REASONS+=("I2C configuration changed")
 fi
 if [ "$KERNEL_CHANGED" -eq 1 ]; then
     REBOOT_REASONS+=("kernel updated ($RUNNING_KERNEL -> $LATEST_KERNEL)")

@@ -2,9 +2,9 @@ from pathlib import Path
 
 import gpiod
 import notecard
-import serial
 from gpiod.line import Bias, Direction, Value
 from gpiod.line_settings import LineSettings
+from periphery import I2C
 
 from power_monitor.adapters.clock.system_clock import SystemClock
 from power_monitor.adapters.notifier.log_notifier import LogNotifier
@@ -21,18 +21,17 @@ from power_monitor.domain.check_power import CheckPower
 
 CHIP_PATH = "/dev/gpiochip0"
 PIN_OFFSET = 23  # hardware signal pin: LOW voltage = power ON
-ON_VALUE = Value.INACTIVE  # LOW voltage = power ON, per the monitored hardware
+ON_VALUE = Value.INACTIVE
 STATE_PATH = Path("/var/lib/power-monitor/state.json")
 CONSUMER = "power-monitor"
-SERIAL_PORT = "/dev/serial0"
-SERIAL_BAUD = 9600
+I2C_PORT = "/dev/i2c-1"
 NOTEFILE = "data.qo"
 
 
 def main() -> None:
     repo = JsonStateRepository(STATE_PATH)
-    port = serial.Serial(SERIAL_PORT, SERIAL_BAUD)
-    card = notecard.OpenSerial(port)
+    port = I2C(I2C_PORT)
+    card = notecard.OpenI2C(port, 0, 0)
     notifier = FanOutNotifier(
         [
             LogNotifier(),
