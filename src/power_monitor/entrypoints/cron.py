@@ -14,9 +14,7 @@ from power_monitor.adapters.pin.power_state_reader_libgpiod import (
     LibGpiodPowerStateReader,
 )
 from power_monitor.adapters.state.state_repository_json import JsonStateRepository
-from power_monitor.adapters.system.log_only_system_command import (
-    LogOnlySystemCommand,  # TEMP
-)
+from power_monitor.adapters.system.system_command_subprocess import SubprocessSystemCommand
 from power_monitor.domain.check_power import CheckPower
 
 CHIP_PATH = "/dev/gpiochip0"
@@ -38,7 +36,7 @@ def main() -> None:
             NotecardNotifier(card, notefile=NOTEFILE),
         ]
     )
-    system = LogOnlySystemCommand()  # TEMP: replace with real adapter
+    system = SubprocessSystemCommand()
 
     with gpiod.request_lines(
         CHIP_PATH,

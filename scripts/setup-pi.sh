@@ -74,9 +74,49 @@ else
     I2C_CHANGED=1
 fi
 
+# --- sudoers rule for shutdown ---
+SUDOERS_FILE="/etc/sudoers.d/power-monitor"
+SHUTDOWN_RULE="$USER ALL=(root) NOPASSWD: /usr/bin/systemctl --no-block poweroff"
+
+echo "==> Ensuring sudoers rule for shutdown"
+if [ ! -f "$SUDOERS_FILE" ]; then
+    echo "$SHUTDOWN_RULE" | sudo tee "$SUDOERS_FILE" > /dev/null
+    sudo chmod 0440 "$SUDOERS_FILE"
+    echo "    created $SUDOERS_FILE"
+elif sudo grep -qF "$SHUTDOWN_RULE" "$SUDOERS_FILE"; then
+    echo "    shutdown rule already present"
+else
+    echo "$SHUTDOWN_RULE" | sudo tee -a "$SUDOERS_FILE" > /dev/null
+    echo "    appended shutdown rule to $SUDOERS_FILE"
+fi
+
+sudo visudo -c -f "$SUDOERS_FILE" > /dev/null
+echo "    sudoers syntax OK"
+
+# --- persistent journald ---
+if [ ! -d /var/log/journal ]; then
+    echo "==> Enabling persistent journal"
+    sudo mkdir -p /var/log/journal
+    sudo systemd-tmpfiles --create --prefix /var/log/journal
+    sudo systemctl restart systemd-journald
+    echo "    persistent journal enabled"
+else
+    echo "==> Persistent journal already enabled"
+fi
+
 # --- kernel update check ---
 RUNNING_KERNEL=$(uname -r)
-LATEST_KERNEL=$(ls /boot/vmlinuz-* 2>/dev/null | sed 's|.*/vmlinuz-||' | sort -V | tail -1 || true)
+# On 32-bit Raspberry Pi OS, the v7 kernel is the expected running kernel.
+# Check for the matching v7 image, not the v8 one that apt also installs.
+if echo "$RUNNING_KERNEL" | grep -q -- "-v7"; then
+    EXPECTED_SUFFIX="+rpt-rpi-v7"
+elif echo "$RUNNING_KERNEL" | grep -q -- "-v8"; then
+    EXPECTED_SUFFIX="+rpt-rpi-v8"
+else
+    EXPECTED_SUFFIX=""
+fi
+
+LATEST_KERNEL=$(ls /boot/vmlinuz-*"$EXPECTED_SUFFIX" 2>/dev/null | sed 's|.*/vmlinuz-||' | sort -V | tail -1 || true)
 KERNEL_CHANGED=0
 if [ -n "$LATEST_KERNEL" ] && [ "$RUNNING_KERNEL" != "$LATEST_KERNEL" ]; then
     KERNEL_CHANGED=1
