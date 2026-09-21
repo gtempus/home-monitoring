@@ -372,6 +372,7 @@ source = { editable = "." }
 pi = [
     { name = "note-python" },
     { name = "pyserial" },
+    { name = "python-periphery" },
 ]
 
 [package.dev-dependencies]
@@ -386,6 +387,7 @@ dev = [
 requires-dist = [
     { name = "note-python", marker = "extra == 'pi'", specifier = ">=2.0" },
     { name = "pyserial", marker = "extra == 'pi'", specifier = ">=3.5" },
+    { name = "python-periphery", marker = "extra == 'pi'", specifier = ">=2.3" },
 ]
 provides-extras = ["pi"]
 
@@ -443,6 +445,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/b1/51/a849f96e117386044471c8ec2bd6cfebacda285da9525c9106aeb28da671/pytest_cov-7.1.0.tar.gz", hash = "sha256:30674f2b5f6351aa09702a9c8c364f6a01c27aae0c1366ae8016160d1efc56b2", size = 55592, upload-time = "2026-03-21T20:11:16.284Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/9d/7a/d968e294073affff457b041c2be9868a40c1c71f4a35fcc1e45e5493067b/pytest_cov-7.1.0-py3-none-any.whl", hash = "sha256:a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678", size = 22876, upload-time = "2026-03-21T20:11:14.438Z" },
+]
+
+[[package]]
+name = "python-periphery"
+version = "2.4.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/81/4e/e25e53c24192b7a6192f27ae38760dc679737b5b3c44961408e1ab10e802/python_periphery-2.4.2.tar.gz", hash = "sha256:9b334a31832ba64f74aa72700ee5fd6452d79d1d1fa6a0b48333bdb716d91575", size = 40819, upload-time = "2026-09-15T06:04:25.638Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/30/e6/0ff2b3910f43cc9cd0fa1b929b043e826d5d01d0959dcfca011a77b9665b/python_periphery-2.4.2-py2.py3-none-any.whl", hash = "sha256:69d38c9b864e3213e7618929548b42c3c94363c065950926363032e0c571af2c", size = 36507, upload-time = "2026-09-15T06:04:24.735Z" },
 ]
 
 [[package]]

@@ -22,6 +22,7 @@ power-monitor = "power_monitor.entrypoints.cron:main"
 pi = [
     "note-python>=2.0",
     "pyserial>=3.5",
+    "python-periphery>=2.3",
 ]
 
 [build-system]
