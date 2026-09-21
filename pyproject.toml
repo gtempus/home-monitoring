@@ -21,7 +21,6 @@ power-monitor = "power_monitor.entrypoints.cron:main"
 [project.optional-dependencies]
 pi = [
     "note-python>=2.0",
-    "pyserial>=3.5",
     "python-periphery>=2.3",
 ]
 
@@ -48,7 +47,7 @@ explicit_package_bases = true
 mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
 
 [[tool.mypy.overrides]]
-module = ["gpiod", "gpiod.*", "notecard", "notecard.*", "serial", "serial.*"]
+module = ["gpiod", "gpiod.*", "notecard", "notecard.*", "periphery", "periphery.*"]
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]

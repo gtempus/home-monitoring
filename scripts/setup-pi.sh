@@ -74,30 +74,6 @@ else
     I2C_CHANGED=1
 fi
 
-# --- UART for Notecard serial ---
-UART_CHANGED=0
-CONFIG="/boot/firmware/config.txt"
-CMDLINE="/boot/firmware/cmdline.txt"
-
-echo "==> Configuring UART for Notecard serial"
-if [ ! -f "$CONFIG" ]; then
-    echo "    WARNING: $CONFIG not found; skipping UART config"
-elif ! grep -q "^enable_uart=1" "$CONFIG"; then
-    echo "enable_uart=1" | sudo tee -a "$CONFIG" > /dev/null
-    echo "    added enable_uart=1 to $CONFIG"
-    UART_CHANGED=1
-else
-    echo "    enable_uart=1 already present"
-fi
-
-if [ -f "$CMDLINE" ] && grep -q "console=serial0,115200" "$CMDLINE"; then
-    sudo sed -i 's/console=serial0,115200 //' "$CMDLINE"
-    echo "    removed serial console from $CMDLINE"
-    UART_CHANGED=1
-else
-    echo "    serial console already disabled"
-fi
-
 # --- kernel update check ---
 RUNNING_KERNEL=$(uname -r)
 LATEST_KERNEL=$(ls /boot/vmlinuz-* 2>/dev/null | sed 's|.*/vmlinuz-||' | sort -V | tail -1 || true)
@@ -110,9 +86,6 @@ fi
 echo
 echo "==> Setup complete."
 
-if [ "$UART_CHANGED" -eq 1 ]; then
-    REBOOT_REASONS+=("UART configuration changed")
-fi
 if [ "$I2C_CHANGED" -eq 1 ]; then
     REBOOT_REASONS+=("I2C configuration changed")
 fi
