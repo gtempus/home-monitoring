@@ -11,6 +11,7 @@ dev = [
     "pytest-cov>=6",
     "ruff>=0.7",
     "mypy>=1.13",
+    "poethepoet>=0.48.0",
 ]
 
 # Pi-only deps, installed explicitly on the target hardware.
@@ -49,6 +50,16 @@ mypy_path = "$MYPY_CONFIG_FILE_DIR/src"
 [[tool.mypy.overrides]]
 module = ["gpiod", "gpiod.*", "notecard", "notecard.*", "periphery", "periphery.*"]
 ignore_missing_imports = true
+
+[tool.poe.tasks]
+format = "ruff format src tests"
+lint = "ruff check --fix src tests"
+lint-check = "ruff check src tests"
+typecheck = "mypy"
+test = "pytest"
+
+check = ["format", "lint", "typecheck", "test"]
+check-check = ["lint-check", "typecheck", "test"]
 
 [tool.pytest.ini_options]
 markers = [
